@@ -44,4 +44,73 @@ def scrape_goodreads_list(url):
         })
         print("Sample cover_url:", books[0]["cover_url"])
 
+    print("Books found on list page:", len(books))  # Debug: See how many books were scraped
     return pd.DataFrame(books)
+
+def scrape_book_page(book_url):
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(book_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Extract ISBN (if available)
+    isbn = None
+    isbn_tag = soup.find('span', itemprop='isbn')
+    if isbn_tag:
+        isbn = isbn_tag.text.strip()
+    else:
+        # Try alternate selectors if needed
+        isbn_label = soup.find('div', string=lambda s: s and 'ISBN' in s)
+        if isbn_label:
+            isbn_text = isbn_label.find_next_sibling('div')
+            if isbn_text:
+                isbn = isbn_text.text.strip().split()[0]
+
+    cover_url = None
+
+    # 1. Try Open Library
+    if isbn:
+        openlib_url = f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
+        resp = requests.get(openlib_url)
+        if resp.status_code == 200 and resp.headers.get("Content-Type", "").startswith("image"):
+            # Check for Open Library's "no cover" placeholder (very small file)
+            if not (resp.headers.get("Content-Type", "").endswith("svg+xml") or len(resp.content) < 2048):
+                cover_url = openlib_url
+
+    # 2. Try Google Books if Open Library failed
+    if not cover_url and isbn:
+        try:
+            gb_resp = requests.get(
+                f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}",
+                timeout=5
+            )
+            if gb_resp.status_code == 200:
+                gb_data = gb_resp.json()
+                items = gb_data.get("items")
+                if items and "imageLinks" in items[0]["volumeInfo"]:
+                    image_links = items[0]["volumeInfo"]["imageLinks"]
+                    cover_url = (
+                        image_links.get("large") or
+                        image_links.get("medium") or
+                        image_links.get("thumbnail") or
+                        image_links.get("smallThumbnail")
+                    )
+        except Exception:
+            pass
+
+    # 3. Try Goodreads cover as last resort
+    if not cover_url:
+        cover_img = soup.find('img', id='coverImage')
+        if cover_img and cover_img.has_attr('src'):
+            cover_url = cover_img['src']
+
+    book_data = {
+        'title': soup.find('span', itemprop='name').text.strip() if soup.find('span', itemprop='name') else None,
+        'author': soup.find('span', itemprop='author').text.strip() if soup.find('span', itemprop='author') else None,
+        'average_rating': soup.find('span', itemprop='ratingValue').text.strip() if soup.find('span', itemprop='ratingValue') else None,
+        'num_ratings': soup.find('meta', itemprop='ratingCount')['content'] if soup.find('meta', itemprop='ratingCount') else None,
+        'book_link': book_url,
+        'isbn': isbn,
+        'cover_url': cover_url,
+    }
+
+    return book_data

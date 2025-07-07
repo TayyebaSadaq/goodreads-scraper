@@ -1,8 +1,9 @@
 import pandas as pd
 import streamlit as st
 import random
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from scraper import scrape_goodreads_list
+from scraper import scrape_goodreads_list, scrape_book_page
 
 genre_urls = {
     "Romance": "https://www.goodreads.com/list/show/12362.All_Time_Favorite_Romance_Novels",
@@ -20,6 +21,24 @@ genre_urls = {
 }
 
 
+def fetch_books_with_covers(list_url, max_workers=8):
+    df = scrape_goodreads_list(list_url)
+    books = df.to_dict(orient='records')
+
+    # Fetch detailed book info (with ISBN/OpenLibrary covers) in parallel
+    results = []
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_book = {executor.submit(scrape_book_page, book['book_link']): book for book in books if book['book_link']}
+        for future in as_completed(future_to_book):
+            try:
+                book_data = future.result()
+                results.append(book_data)
+            except Exception:
+                pass
+
+    return pd.DataFrame(results)
+
+
 genre = st.selectbox("Pick a genre", list(genre_urls.keys()))
 selected_url = genre_urls[genre]
 
@@ -32,8 +51,12 @@ print("CSV columns:", data.columns)  # Debug: See your actual column names
 data['average_rating'] = pd.to_numeric(data['average_rating'], errors='coerce')
 data['num_ratings'] = pd.to_numeric(data['num_ratings'], errors='coerce')
 
-# If your rating column is named differently, e.g., 'avg_rating', set this:
-RATING_COL = 'average_rating'  # Change this to match your CSV, e.g., 'avg_rating'
+RATING_COL = 'average_rating'
+
+# Handle NaN in max for slider
+max_num_ratings = data['num_ratings'].max()
+if pd.isna(max_num_ratings):
+    max_num_ratings = 100000  # fallback default
 
 st.set_page_config(page_title=" Book Explorer", page_icon="📚", layout="wide")
 st.title("📚 Book Explorer")
@@ -42,7 +65,7 @@ st.write("Explore top-rated books and get cozy recs!")
 # --- Sidebar Filters ---
 st.sidebar.header("🔎 Filter Books")
 min_rating = st.sidebar.slider("Minimum average rating", 0.0, 5.0, 3.5, 0.1)
-min_num_ratings = st.sidebar.slider("Minimum number of ratings", 0, int(data['num_ratings'].max()), 1000, 100)
+min_num_ratings = st.sidebar.slider("Minimum number of ratings", 0, int(max_num_ratings), 1000, 100)
 authors = data['author'].dropna().unique()
 selected_authors = st.sidebar.multiselect("Author(s)", sorted(authors))
 
@@ -122,13 +145,18 @@ else:
     cols = st.columns(3)
     for i, (_, row) in enumerate(filtered.iterrows()):
         with cols[i % 3]:
+            cover_html = ""
+            if 'cover_url' in row and pd.notna(row['cover_url']):
+                cover_html = f"<img src='{row['cover_url']}' style='width:120px;height:180px;object-fit:cover;display:block;margin:0 auto 0.7em auto;border-radius:6px;box-shadow:0 2px 8px #e7548033;'/>"
+            else:
+                cover_html = "<div style='width:120px;height:180px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.7em auto;color:#aaa;font-size:1em;'>No Cover</div>"
             st.markdown(
                 f"""
-                <div class="book-card">
-                    {"<img src='" + str(row['cover_url']) + "' style='width:120px;height:180px;object-fit:cover;display:block;margin:0 auto 0.7em auto;border-radius:8px;box-shadow:0 2px 8px #e7548033;'/>" if 'cover_url' in row and pd.notna(row['cover_url']) else ""}
-                    <div class="book-title">{row['title']}</div>
-                    <div class="book-author">by {row['author']}</div>
-                    <div class="rating">{row[RATING_COL]} 🌟 &middot; {row['num_ratings']} ratings</div>
+                <div class="book-card" style="padding:0.7em;">
+                    {cover_html}
+                    <div class="book-title" style="font-size:1em;">{row['title']}</div>
+                    <div class="book-author" style="font-size:0.95em;">by {row['author']}</div>
+                    <div class="rating" style="font-size:0.95em;">{row[RATING_COL]} 🌟 &middot; {row['num_ratings']} ratings</div>
                     <a href="{row['book_link']}" target="_blank">View on Goodreads</a>
                 </div>
                 """,
