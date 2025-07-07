@@ -2,8 +2,21 @@ import pandas as pd
 import streamlit as st
 import random
 
-# Load data
-data = pd.read_csv("romance_books.csv")
+from scraper import scrape_goodreads_list
+
+genre_urls = {
+    "Romance": "https://www.goodreads.com/list/show/12362.All_Time_Favorite_Romance_Novels",
+    "Fantasy": "https://www.goodreads.com/list/show/50.The_Best_Epic_Fantasy_fiction_",
+    "Sci-Fi": "https://www.goodreads.com/list/show/19341.Best_Science_Fiction_Books",
+    # Add more!
+}
+
+genre = st.selectbox("Pick a genre", list(genre_urls.keys()))
+selected_url = genre_urls[genre]
+
+with st.spinner(f"Scraping {genre} books..."):
+    data = scrape_goodreads_list(selected_url)
+
 print("CSV columns:", data.columns)  # Debug: See your actual column names
 
 # Ensure numeric types for filtering
@@ -13,9 +26,9 @@ data['num_ratings'] = pd.to_numeric(data['num_ratings'], errors='coerce')
 # If your rating column is named differently, e.g., 'avg_rating', set this:
 RATING_COL = 'average_rating'  # Change this to match your CSV, e.g., 'avg_rating'
 
-st.set_page_config(page_title="Romance Book Explorer", page_icon="💘", layout="wide")
-st.title("💘 Romance Book Explorer")
-st.write("Explore top-rated romance books and get cozy recs!")
+st.set_page_config(page_title=" Book Explorer", page_icon="📚", layout="wide")
+st.title("📚 Book Explorer")
+st.write("Explore top-rated books and get cozy recs!")
 
 # --- Sidebar Filters ---
 st.sidebar.header("🔎 Filter Books")
