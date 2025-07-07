@@ -7,9 +7,18 @@ from scraper import scrape_goodreads_list
 genre_urls = {
     "Romance": "https://www.goodreads.com/list/show/12362.All_Time_Favorite_Romance_Novels",
     "Fantasy": "https://www.goodreads.com/list/show/50.The_Best_Epic_Fantasy_fiction_",
-    "Sci-Fi": "https://www.goodreads.com/list/show/19341.Best_Science_Fiction_Books",
-    # Add more!
+    "Science Fiction": "https://www.goodreads.com/list/show/19341.Best_Science_Fiction",
+    "Mystery & Thriller": "https://www.goodreads.com/list/show/73283.100_Mysteries_and_Thrillers_to_Read_in_a_Lifetime_Readers_Picks",
+    "Historical Fiction": "https://www.goodreads.com/list/show/15.Best_Historical_Fiction",
+    "Young Adult": "https://www.goodreads.com/list/show/43.Best_Young_Adult_Books",
+    "Non-Fiction": "https://www.goodreads.com/list/show/465.favorite_non_fiction",
+    "Classics": "https://www.goodreads.com/list/show/449.Must_Read_Classics",
+    "Horror": "https://www.goodreads.com/list/show/135.Best_Horror_Novels",
+    "Biography & Memoir": "https://www.goodreads.com/list/show/281.Best_Memoir_Biography_Autobiography",
+    "Graphic Novels": "https://www.goodreads.com/list/show/210.Best_Graphic_Novels",
+    "Poetry": "https://www.goodreads.com/list/show/36.Best_Poetry_Books",
 }
+
 
 genre = st.selectbox("Pick a genre", list(genre_urls.keys()))
 selected_url = genre_urls[genre]
