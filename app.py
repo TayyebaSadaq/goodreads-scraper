@@ -43,6 +43,14 @@ if sort_option == "Popularity (most ratings)":
 else:
     filtered = filtered.sort_values(by=RATING_COL, ascending=False)
 
+# --- Recommendation Button (moved up) ---
+if not filtered.empty:
+    if st.button("💡 Give me a rec!"):
+        rec = filtered.sample(1).iloc[0]
+        st.success(
+            f"💡 You might love **{rec['title']}** by {rec['author']}! Avg rating: {rec[RATING_COL]} 🌟"
+        )
+
 # --- Custom CSS for Book Cards ---
 st.markdown(
     """
@@ -95,6 +103,7 @@ else:
             st.markdown(
                 f"""
                 <div class="book-card">
+                    {"<img src='" + str(row['cover_url']) + "' style='width:120px;height:180px;object-fit:cover;display:block;margin:0 auto 0.7em auto;border-radius:8px;box-shadow:0 2px 8px #e7548033;'/>" if 'cover_url' in row and pd.notna(row['cover_url']) else ""}
                     <div class="book-title">{row['title']}</div>
                     <div class="book-author">by {row['author']}</div>
                     <div class="rating">{row[RATING_COL]} 🌟 &middot; {row['num_ratings']} ratings</div>
@@ -103,11 +112,3 @@ else:
                 """,
                 unsafe_allow_html=True,
             )
-
-# --- Recommendation Button ---
-if not filtered.empty:
-    if st.button("💡 Give me a rec!"):
-        rec = filtered.sample(1).iloc[0]
-        st.success(
-            f"💡 You might love **{rec['title']}** by {rec['author']}! Avg rating: {rec[RATING_COL]} 🌟"
-        )
