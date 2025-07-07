@@ -43,22 +43,66 @@ if sort_option == "Popularity (most ratings)":
 else:
     filtered = filtered.sort_values(by=RATING_COL, ascending=False)
 
+# --- Custom CSS for Book Cards ---
+st.markdown(
+    """
+    <style>
+    .book-card {
+        background: #fff0f6;
+        padding: 1em;
+        margin-bottom: 1em;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(231, 84, 128, 0.2);
+        transition: transform 0.2s ease-in-out;
+    }
+    .book-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(231, 84, 128, 0.4);
+    }
+    .book-title {
+        font-weight: 700;
+        font-size: 1.2em;
+        color: #b83a66;
+    }
+    .book-author {
+        font-style: italic;
+        color: #7a3e5f;
+    }
+    .rating {
+        color: #e75480;
+        font-weight: 600;
+    }
+    a {
+        color: #a96bc0;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # --- Display Results ---
 st.subheader("📚 Results")
 if filtered.empty:
     st.info("No books match your filters. Try adjusting them!")
 else:
-    for _, row in filtered.iterrows():
-        st.markdown(
-            f"""
-            <div style="background:#fff6fa;padding:1em;margin-bottom:1em;border-radius:10px;box-shadow:0 2px 8px #f3e6ee;">
-                <b style="font-size:1.1em;">{row['title']}</b> by <i>{row['author']}</i><br>
-                <span style="color:#e75480;">{row[RATING_COL]} 🌟</span> &middot; {row['num_ratings']} ratings<br>
-                <a href="{row['book_link']}" target="_blank" style="color:#b983ff;">View on Goodreads</a>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    cols = st.columns(3)
+    for i, (_, row) in enumerate(filtered.iterrows()):
+        with cols[i % 3]:
+            st.markdown(
+                f"""
+                <div class="book-card">
+                    <div class="book-title">{row['title']}</div>
+                    <div class="book-author">by {row['author']}</div>
+                    <div class="rating">{row[RATING_COL]} 🌟 &middot; {row['num_ratings']} ratings</div>
+                    <a href="{row['book_link']}" target="_blank">View on Goodreads</a>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 # --- Recommendation Button ---
 if not filtered.empty:
