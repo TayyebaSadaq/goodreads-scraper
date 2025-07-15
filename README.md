@@ -1,4 +1,4 @@
-# 📚 Goodreads Book Explorer
+# 📚 Goodreads Book Scraper
 Discover top rated books by genre, with:
 - cover images
 - filtering
