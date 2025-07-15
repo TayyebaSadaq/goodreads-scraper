@@ -1,6 +1,7 @@
 class BookExplorer {
-    constructor() {
-        this.baseUrl = window.location.origin;
+    constructor(config = {}) {
+        // Use your deployed backend URL on Render
+        this.baseUrl = config.baseUrl || 'https://goodreads-scraper.onrender.com';
         this.currentGenre = '';
         this.init();
     }
@@ -12,7 +13,18 @@ class BookExplorer {
 
     async loadGenres() {
         try {
-            const response = await fetch(`${this.baseUrl}/api/genres`);
+            // Add error handling for CORS issues
+            const response = await fetch(`${this.baseUrl}/api/genres`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
             
             const select = document.getElementById('genre-select');
@@ -26,6 +38,8 @@ class BookExplorer {
             });
         } catch (error) {
             console.error('Error loading genres:', error);
+            const select = document.getElementById('genre-select');
+            select.innerHTML = '<option value="">Error loading genres</option>';
         }
     }
 
@@ -83,13 +97,22 @@ class BookExplorer {
                 sort_by: sortBy
             });
 
-            const response = await fetch(`${this.baseUrl}/api/books/${this.currentGenre}?${params}`);
-            const data = await response.json();
+            const response = await fetch(`${this.baseUrl}/api/books/${this.currentGenre}?${params}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
             this.displayBooks(data.books);
         } catch (error) {
             console.error('Error searching books:', error);
-            alert('Error loading books. Please try again.');
+            alert('Error loading books. Please check your connection and try again.');
         } finally {
             this.hideLoading();
         }
@@ -97,13 +120,22 @@ class BookExplorer {
 
     async getRecommendation() {
         try {
-            const response = await fetch(`${this.baseUrl}/api/recommendation/${this.currentGenre}`);
-            const data = await response.json();
+            const response = await fetch(`${this.baseUrl}/api/recommendation/${this.currentGenre}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
             this.displayRecommendation(data.recommendation);
         } catch (error) {
             console.error('Error getting recommendation:', error);
-            alert('Error getting recommendation. Please try again.');
+            alert('Error getting recommendation. Please check your connection and try again.');
         }
     }
 

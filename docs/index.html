@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Explorer Widget</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>📚 Book Explorer - Embeddable Widget</title>
+    <meta name="description" content="Discover top-rated books by genre with cover images, filtering, and recommendations. Easy to embed on any website!">
+    <meta name="keywords" content="books, goodreads, reading, widget, embed, recommendations">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="📚 Book Explorer Widget">
+    <meta property="og:description" content="Embeddable book discovery widget with Goodreads data">
+    
+    <!-- GitHub Pages compatible paths -->
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <div id="book-explorer-widget" class="widget-container">
@@ -55,6 +64,14 @@
         </div>
     </div>
 
-    <script src="/static/script.js"></script>
+    <!-- GitHub Pages compatible script path -->
+    <script src="./script.js"></script>
+    
+    <!-- Updated GitHub Pages info footer -->
+    <footer style="text-align: center; padding: 20px; color: #666; font-size: 14px; margin-top: 40px;">
+        <p>📚 Book Explorer Widget • <a href="https://github.com/TayyebaSadaq/goodreads-scraper" target="_blank">View on GitHub</a></p>
+        <p>Embed this widget on your site with our <a href="./demo.html">embed code</a></p>
+        <p style="font-size: 12px; margin-top: 10px;">Backend powered by <a href="https://goodreads-scraper.onrender.com" target="_blank">Render</a></p>
+    </footer>
 </body>
 </html>
