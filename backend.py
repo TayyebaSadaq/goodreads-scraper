@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 import pandas as pd
 from typing import Optional, List
 import uvicorn
+import os
 from scraper import scrape_goodreads_list, scrape_book_page
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -19,8 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Serve static files from docs directory
+app.mount("/static", StaticFiles(directory="docs"), name="static")
 
 genre_urls = {
     "Romance": "https://www.goodreads.com/list/show/12362.All_Time_Favorite_Romance_Novels",
@@ -39,7 +40,7 @@ genre_urls = {
 
 @app.get("/")
 async def read_root():
-    with open("static/index.html", "r") as f:
+    with open("docs/index.html", "r") as f:
         return HTMLResponse(content=f.read())
 
 @app.get("/api/genres")

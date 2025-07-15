@@ -5,7 +5,7 @@
     const DEFAULT_CONFIG = {
         width: '100%',
         height: '800px',
-        baseUrl: 'https://your-app-domain.com', // Replace with your deployed URL
+        baseUrl: window.location.origin, // Use current origin instead of hardcoded URL
         theme: 'default'
     };
 
