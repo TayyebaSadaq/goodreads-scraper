@@ -13,43 +13,43 @@
 
     <!-- Load the actual embed script -->
     <script src="./embed.js"></script>
-    <script>
-        function copyToClipboard(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('📋 Code copied to clipboard!');
-                }).catch(() => fallbackCopy(text));
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
+<script>
+    function copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('📋 Code copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('📋 Code copied to clipboard!');
+            });
+        } else {
+            // Fallback for very old browsers
             const textArea = document.createElement('textarea');
             textArea.value = text;
-            textArea.style.position = 'fixed';
             document.body.appendChild(textArea);
-            textArea.focus();
             textArea.select();
-            try {
-                document.execCommand('copy');
-                alert('📋 Code copied to clipboard!');
-            } catch (err) {
-                alert('❌ Could not copy code. Please try manually.');
-            }
+            document.execCommand('copy');
             document.body.removeChild(textArea);
+            alert('📋 Code copied to clipboard!');
         }
+    }
 
-        function copyQuickEmbed() {
-            const code = `<!-- Load the embed script -->
+    function copyQuickEmbed() {
+        const code = `<!-- Load the embed script -->
 <script src="https://TayyebaSadaq.github.io/goodreads-scraper/embed.js"></script>
 <!-- Create widget container -->
 <div id="book-widget" data-book-explorer data-width="100%" data-height="800px"></div>`;
-            copyToClipboard(code);
-        }
+        copyToClipboard(code);
+    }
 
-        function copyCustomEmbed() {
-            const code = `<script src="https://TayyebaSadaq.github.io/goodreads-scraper/embed.js"></script>
+    function copyCustomEmbed() {
+        const code = `<script src="https://TayyebaSadaq.github.io/goodreads-scraper/embed.js"></script>
 <div id="my-book-explorer"></div>
 <script>
     BookExplorerWidget.create('my-book-explorer', {
@@ -57,19 +57,19 @@
         height: '600px'
     });
 </script>`;
-            copyToClipboard(code);
-        }
+        copyToClipboard(code);
+    }
 
-        function copyIframeEmbed() {
-            const code = `<iframe 
+    function copyIframeEmbed() {
+        const code = `<iframe 
     src="https://TayyebaSadaq.github.io/goodreads-scraper/" 
     width="100%" 
     height="800px" 
     frameborder="0"
     style="border-radius: 12px; max-width: 1200px;">
 </iframe>`;
-            copyToClipboard(code);
-        }
-    </script>
+        copyToClipboard(code);
+    }
+</script>
 </body>
 </html>
