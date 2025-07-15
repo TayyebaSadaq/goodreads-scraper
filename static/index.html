@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Explorer Widget</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div id="book-explorer-widget" class="widget-container">
+        <div class="widget-header">
+            <h2>Book Explorer</h2>
+            <p>Explore top-rated books and get cozy recommendations!</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="genre-select">Genre:</label>
+                <select id="genre-select">
+                    <option value="">Loading genres...</option>
+                </select>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="min-rating">Min Rating:</label>
+                    <input type="range" id="min-rating" min="0" max="5" step="0.1" value="3.5">
+                    <span id="rating-value">3.5</span>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sort-by">Sort by:</label>
+                    <select id="sort-by">
+                        <option value="popularity">Popularity</option>
+                        <option value="rating">Rating</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="search-btn" class="btn primary">Search Books</button>
+                <button id="recommend-btn" class="btn secondary">Get Recommendation</button>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Loading books...</p>
+        </div>
+        
+        <div id="recommendation" class="recommendation hidden"></div>
+        
+        <div id="results" class="results">
+            <div class="books-grid" id="books-grid"></div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
