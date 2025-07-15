@@ -60,7 +60,7 @@ Add this to any webpage:
 
 ```html
 <!-- Load the embed script -->
-<script src="https://your-domain.com/static/embed.js"></script>
+<script src="https://your-domain.com/docs/embed.js"></script>
 
 <!-- Create widget container -->
 <div id="book-widget" data-book-explorer data-width="100%" data-height="800px"></div>
@@ -68,7 +68,7 @@ Add this to any webpage:
 
 ## Manual Initialization
 ```html
-<script src="https://your-domain.com/static/embed.js"></script>
+<script src="https://your-domain.com/docs/embed.js"></script>
 <div id="my-book-explorer"></div>
 <script>
     BookExplorerWidget.create('my-book-explorer', {
